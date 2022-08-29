@@ -3,9 +3,9 @@ variable "name" {
 }
 
 variable "group" {
-    description = "the group tag for ansible to identify RabbitMQ"
+    description = "The group name that ansible's dynamic inventory will groups"
 }
 
 variable "profile" {
-    description = "profile we will use for deploy"
+    description = "Which profile to use for IAM"
 }
