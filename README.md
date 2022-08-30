@@ -22,7 +22,7 @@
 
 7- navigate back to manage jenkins > manage users create an api token
 
-8- replace blank values and values between ${} symbols (delete the ${} symbols also) in this files:
+8- replace blank values and values between $ { } symbols (delete the $ { } symbols also) in this files:
     - ansible\rmq\rmq_playbook.yml
     - terraform\rmq\main.tf
     - ansible\config\aws_ec2.yml
