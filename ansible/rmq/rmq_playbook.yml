@@ -27,5 +27,5 @@
         - name: Add initial user
           become: yes
           shell: |
-            rabbitmqctl add_user josueSarabia Mypassword1
-            rabbitmqctl set_user_tags josueSarabia administrator 
+            rabbitmqctl add_user ${CHOOSE YOUR RABBITMQ USERNAME} ${CHOOSE YOUR RABBITMQ PASSWORD}
+            rabbitmqctl set_user_tags ${CHOOSE YOUR RABBITMQ USERNAME} administrator 

@@ -1,0 +1,95 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Action</name>
+          <description>the terraform action - USE CAREFULLY</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>plan</string>
+              <string>apply</string>
+              <string>destroy</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>Ansible</name>
+          <description>Run Ansible playbook post terraform?</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.TextParameterDefinition>
+          <name>Name</name>
+          <description>the name of the instance terraform will create</description>
+          <defaultValue>rmq</defaultValue>
+          <trim>false</trim>
+        </hudson.model.TextParameterDefinition>
+        <hudson.model.TextParameterDefinition>
+          <name>Group</name>
+          <description>the group tag that ansible will reference (dynamic inventory)</description>
+          <defaultValue>rmq</defaultValue>
+          <trim>false</trim>
+        </hudson.model.TextParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.11.5">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/josueSarabia/devops3-Terraform-RMQ-AWS.git</url>
+        <credentialsId>Jenkins</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/main</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="empty-list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>if [ $Action = &quot;apply&quot; ]; then
+	terraform -chdir=terraform/rmq init 
+	terraform -chdir=terraform/rmq $Action -var &quot;name=$Name&quot; -var &quot;profile=josue.sarabia&quot; -var &quot;group=$Group&quot; -auto-approve
+    if [ $Ansible ]; then
+		curl http://localhost:8080/job/RabbitMQ_Configuration/build?token=rmqtoken \
+		--user admin:1186318300bcfa6b648b16796c1e763c44
+	fi
+elif [ $Action = &quot;plan&quot; ]; then
+	terraform -chdir=terraform/rmq init
+	terraform -chdir=terraform/rmq $Action -var &quot;name=$Name&quot; -var &quot;profile=josue.sarabia&quot; -var &quot;group=$Group&quot;
+else
+	terraform -chdir=terraform/rmq init
+	terraform -chdir=terraform/rmq $Action -var &quot;name=$Name&quot; -var &quot;profile=josue.sarabia&quot; -var &quot;group=$Group&quot; -auto-approve
+fi</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <org.jenkinsci.plugins.credentialsbinding.impl.SecretBuildWrapper plugin="credentials-binding@523.vd859a_4b_122e6">
+      <bindings>
+        <com.cloudbees.jenkins.plugins.awscredentials.AmazonWebServicesCredentialsBinding plugin="aws-credentials@191.vcb_f183ce58b_9">
+          <credentialsId>Aws</credentialsId>
+          <accessKeyVariable>AWS_ACCESS_KEY_ID</accessKeyVariable>
+          <secretKeyVariable>AWS_SECRET_ACCESS_KEY</secretKeyVariable>
+          <roleSessionDurationSeconds>0</roleSessionDurationSeconds>
+        </com.cloudbees.jenkins.plugins.awscredentials.AmazonWebServicesCredentialsBinding>
+      </bindings>
+    </org.jenkinsci.plugins.credentialsbinding.impl.SecretBuildWrapper>
+  </buildWrappers>
+</project>
